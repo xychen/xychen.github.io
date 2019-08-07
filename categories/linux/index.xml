@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>linux on xychen&#39;s blog</title>
+    <link>https://xychen.github.io/categories/linux/</link>
+    <description>Recent content in linux on xychen&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 02 Jul 2016 02:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://xychen.github.io/categories/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>使用netcat与服务器间传输文件</title>
+      <link>https://xychen.github.io/post/2016-07-02-netcat-usage/</link>
+      <pubDate>Sat, 02 Jul 2016 02:00:00 +0000</pubDate>
+      
+      <guid>https://xychen.github.io/post/2016-07-02-netcat-usage/</guid>
+      <description>前言 换了mac本之后，一直使用item2作为终端，最常用的就是通过ssh连接到远程服务器进行一些开发调试的工作。有时候需要把本地文件上传到服</description>
+    </item>
+    
+  </channel>
+</rss>
