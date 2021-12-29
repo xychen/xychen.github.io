@@ -1,0 +1,626 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>supervisor在PHP项目中的使用 - xychen's blog</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<meta name=author content="xyChen"><meta name=description content="使用背景 很多场景下，我们需要使用PHP开发一些脚本，用于处理离线数据。常用的实现方式有以下几种: 1.crontab：这种方式适用于定时任务，"><meta name=keywords content="Hugo,theme,even">
+<meta name=generator content="Hugo 0.89.4 with theme even">
+<link rel=canonical href=https://xychen.github.io/post/2017-12-17-php-supervisor/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<script async src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js></script>
+<link href=/sass/main.min.a0d972f15c921e3238784e6953ef2a97f7695626d29b7c150c400b64434797e0.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="supervisor在PHP项目中的使用">
+<meta property="og:description" content="使用背景 很多场景下，我们需要使用PHP开发一些脚本，用于处理离线数据。常用的实现方式有以下几种: 1.crontab：这种方式适用于定时任务，">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://xychen.github.io/post/2017-12-17-php-supervisor/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2017-12-16T20:00:00+00:00">
+<meta property="article:modified_time" content="2017-12-16T20:00:00+00:00">
+<meta itemprop=name content="supervisor在PHP项目中的使用">
+<meta itemprop=description content="使用背景 很多场景下，我们需要使用PHP开发一些脚本，用于处理离线数据。常用的实现方式有以下几种: 1.crontab：这种方式适用于定时任务，"><meta itemprop=datePublished content="2017-12-16T20:00:00+00:00">
+<meta itemprop=dateModified content="2017-12-16T20:00:00+00:00">
+<meta itemprop=wordCount content="1849">
+<meta itemprop=keywords content="php,supervisor,"><meta name=twitter:card content="summary">
+<meta name=twitter:title content="supervisor在PHP项目中的使用">
+<meta name=twitter:description content="使用背景 很多场景下，我们需要使用PHP开发一些脚本，用于处理离线数据。常用的实现方式有以下几种: 1.crontab：这种方式适用于定时任务，"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>xyChen</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/categories/>
+<li class=mobile-menu-item>Categories</li>
+</a><a href=/about/>
+<li class=mobile-menu-item>About</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>xyChen</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/categories/>Categories</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/about/>About</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>supervisor在PHP项目中的使用</h1>
+<div class=post-meta>
+<span class=post-time> 2017-12-16 </span>
+<div class=post-category>
+<a href=/categories/php/> php </a>
+</div>
+<span id=busuanzi_container_page_pv class=more-meta> <span id=busuanzi_value_page_pv><img src=/img/spinner.svg alt=spinner.svg></span> 次阅读 </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>文章目录</h2>
+<div class="post-toc-content always-active">
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#使用背景>使用背景</a></li>
+<li><a href=#supervisor配置>supervisor配置</a></li>
+<li><a href=#信号处理>信号处理</a></li>
+<li><a href=#定时重启>定时重启</a></li>
+<li><a href=#总结>总结</a></li>
+<li><a href=#参考列表>参考列表</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<h2 id=使用背景>使用背景</h2>
+<p>很多场景下，我们需要使用PHP开发一些脚本，用于处理离线数据。常用的实现方式有以下几种:</p>
+<p>1.crontab：这种方式适用于定时任务，对于数据量较大时不太适合</p>
+<p>2.循环+后台运行： 启动一个脚本，让其在后台运行，脚本中是一个循环，可以一直处理任务。如果需要多个进程，就多启动几次脚本，简单粗暴。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>nohup /usr/bin/php dojob.php &gt; /dev/null 2&gt;<span class=p>&amp;</span><span class=m>1</span> <span class=p>&amp;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>3.PHP实现daemon+多进程： 类似nginx、php-fpm的多进程方式，通过fork实现多进程，master进程负责管理，worker进程负责处理具体的任务。</p>
+<p>4.supervisor管理： 原理和多进程方式类似，supervisor充当一个master进程的角色，相对于PHP自己实现多进程，使用起来更简单一些。
+本文将重点讨论supervisor的方式。</p>
+<h2 id=supervisor配置>supervisor配置</h2>
+<p>supervisor的安装我就不再多说，网上有很多教程，可以自行查找。如下，我直接贴过来一个配置：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>[program:test]
+directory = /data/app/
+command = /usr/bin/php test.php
+process_name = %(program_name)s_%(process_num)02d
+numprocs = 1        //启动的进程数
+autostart = true    //supervisord启动的时候，是否自动启动这个任务
+autorestart = true  //进程退出后，是否自动重启该进程
+startsecs = 1
+startretries = 3
+exitcodes = 0,2
+stopsignal = QUIT   //退出时，supervisor给进程发送的信号，可以改成其他的
+stopwaitsecs = 10
+stopasgroup=true
+user = test
+redirect_stderr = false
+stdout_logfile_backups = 90
+stdout_logfile = /data/logs/qrcode.log
+environment = USER=&#34;test&#34;,APP_ENV=&#34;test&#34;
+</code></pre></td></tr></table>
+</div>
+</div><p>我会重点对我备注的这几个配置项如何在PHP项目中正确使用进行说明，并进行代码展示。
+假设的场景，test.php脚本文件的作用是从redis队列中读取数据，并处理数据:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>$job = new Job();
+$job-&gt;handle();
+
+class Job
+{
+    private $redis;
+    public function __(){
+        $this-&gt;redis = new \Redis();
+        $this-&gt;redis-&gt;connect(&#39;127.0.0.1&#39;, 6379);
+    }
+
+    //处理函数
+    public function handle()
+    {
+        while(true) {
+            $data = $this-&gt;redis-&gt;lPop(&#39;QUEUE:JOB&#39;);
+            if(!$data) {
+                sleep(5);
+                continue;
+            }
+            //do data
+            //比如：将数据存储到文件中……
+            file_put_contents(&#39;/data/data.txt&#39;, $data, FILE_APPEND);
+        }
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=信号处理>信号处理</h2>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>stopsignal = QUIT   //退出时，supervisor给进程发送的信号
+</code></pre></td></tr></table>
+</div>
+</div><p>当执行supervisorctl stop test操作时,supervisor的管理进程会发出一个 QUIT 信号。test.php脚本中没有处理这个信号，那么test.php进程会直接退出，这样就会有一个问题，假设进程正在写文件，直接退出了这条数据就写失败了。正确的做法是，让进程处理完本次写入再退出：</p>
+<p>1.设置一个while循环的变量 (loop变量，初始值为true)<br>
+2.绑定信号处理函数: (pcntl_signal)<br>
+3.while循环中，每次循环进行一次信号分发 (pcntl_signal_dispatch)<br>
+4.当接收到相应信号时，将loop变量设置为false，那么在下一次循环时，函数将退出执行</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-php data-lang=php><span class=nv>$job</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Job</span><span class=p>();</span>
+<span class=nv>$job</span><span class=o>-&gt;</span><span class=na>handle</span><span class=p>();</span>
+
+<span class=k>class</span> <span class=nc>Job</span>
+<span class=p>{</span>
+    <span class=k>private</span> <span class=nv>$redis</span><span class=p>;</span>
+    <span class=k>private</span> <span class=nv>$loop</span> <span class=o>=</span> <span class=k>true</span><span class=p>;</span>
+    <span class=k>public</span> <span class=k>function</span> <span class=nf>__</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=c1>//信号安装
+</span><span class=c1></span>        <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>installSignal</span><span class=p>();</span>
+        <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>redis</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>\Redis</span><span class=p>();</span>
+        <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>redis</span><span class=o>-&gt;</span><span class=na>connect</span><span class=p>(</span><span class=s1>&#39;127.0.0.1&#39;</span><span class=p>,</span> <span class=mi>6379</span><span class=p>);</span>
+    <span class=p>}</span>
+
+    <span class=c1>//处理函数
+</span><span class=c1></span>    <span class=k>public</span> <span class=k>function</span> <span class=nf>handle</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=k>while</span><span class=p>(</span><span class=nv>$this</span><span class=o>-&gt;</span><span class=na>loop</span><span class=p>)</span> <span class=p>{</span>
+            <span class=c1>//信号分发
+</span><span class=c1></span>            <span class=nx>pcntl_signal_dispatch</span><span class=p>();</span>
+            <span class=nv>$data</span> <span class=o>=</span> <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>redis</span><span class=o>-&gt;</span><span class=na>lPop</span><span class=p>(</span><span class=s1>&#39;QUEUE:JOB&#39;</span><span class=p>);</span>
+            <span class=k>if</span><span class=p>(</span><span class=o>!</span><span class=nv>$data</span><span class=p>)</span> <span class=p>{</span>
+                <span class=nx>sleep</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>       <span class=c1>//spare sleep
+</span><span class=c1></span>                <span class=k>continue</span><span class=p>;</span>
+            <span class=p>}</span>
+            <span class=c1>//do data
+</span><span class=c1></span>            <span class=c1>//比如：将数据存储到文件中……
+</span><span class=c1></span>            <span class=nx>file_put_contents</span><span class=p>(</span><span class=s1>&#39;/data/data.txt&#39;</span><span class=p>,</span> <span class=nv>$data</span><span class=p>,</span> <span class=nx>FILE_APPEND</span><span class=p>);</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
+
+    <span class=c1>//信号安装
+</span><span class=c1></span>    <span class=k>function</span> <span class=nf>installSignal</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=c1>//绑定QUIT信号
+</span><span class=c1></span>        <span class=nx>pcntl_signal</span><span class=p>(</span><span class=nx>SIGQUIT</span><span class=p>,</span> <span class=k>array</span><span class=p>(</span><span class=nv>$this</span><span class=p>,</span> <span class=s1>&#39;sigalHndler&#39;</span><span class=p>));</span>
+        <span class=nx>pcntl_signal</span><span class=p>(</span><span class=nx>SIGTERM</span><span class=p>,</span> <span class=k>array</span><span class=p>(</span><span class=nv>$this</span><span class=p>,</span> <span class=s1>&#39;sigalHndler&#39;</span><span class=p>));</span>
+        <span class=nx>pcntl_signal</span><span class=p>(</span><span class=nx>SIGHUP</span><span class=p>,</span> <span class=k>array</span><span class=p>(</span><span class=nv>$this</span><span class=p>,</span> <span class=s1>&#39;sigalHndler&#39;</span><span class=p>));</span>
+        <span class=nx>pcntl_signal</span><span class=p>(</span><span class=nx>SIGINT</span><span class=p>,</span> <span class=k>array</span><span class=p>(</span><span class=nv>$this</span><span class=p>,</span> <span class=s1>&#39;sigalHndler&#39;</span><span class=p>));</span>
+
+    <span class=p>}</span>
+
+    <span class=c1>//信号处理函数
+</span><span class=c1></span>    <span class=k>private</span> <span class=k>function</span> <span class=nf>sigalHndler</span><span class=p>(</span><span class=nv>$signo</span><span class=p>)</span>
+    <span class=p>{</span>
+        <span class=k>switch</span> <span class=p>(</span><span class=nv>$signo</span><span class=p>)</span> <span class=p>{</span>
+            <span class=k>case</span> <span class=nx>SIGTERM</span><span class=o>:</span>
+            <span class=k>case</span> <span class=nx>SIGHUP</span><span class=o>:</span>
+            <span class=k>case</span> <span class=nx>SIGINT</span><span class=o>:</span>
+            <span class=k>case</span> <span class=nx>SIGQUIT</span><span class=o>:</span>
+                <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>loop</span> <span class=o>=</span> <span class=k>false</span><span class=p>;</span>
+                <span class=k>break</span><span class=p>;</span>
+            <span class=k>default</span><span class=o>:</span>
+                <span class=c1>// 处理所有其他信号
+</span><span class=c1></span>        <span class=p>}</span>
+    <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=定时重启>定时重启</h2>
+<p>nginx和php-fpm中有一个机制，worker进程在运行一段时间后，会主动退出，释放资源，master进程会再创建出新的worker进程继续运行，可以在一定程度上避免内存泄漏。supervisor中也可以实现这种功能。</p>
+<p>1.首先在supervisor的配置文件中设置autorestart为true</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-php data-lang=php><span class=nx>autorestart</span> <span class=o>=</span> <span class=k>true</span>  <span class=c1>//进程退出后，是否自动重启该进程
+</span></code></pre></td></tr></table>
+</div>
+</div><p>2.在脚本中添加时间检测的逻辑</p>
+<p>至此，我们已经完成了supervisor管理php进程的功能。完整代码如下:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>$job = new Job();
+$job-&gt;handle();
+
+class Job
+{
+    const MAX_RUN_TIME = 3600;  //最长运行1小时
+    private $redis;
+    private $loop = true;
+    private $startTime;
+
+    public function __()
+    {
+        //信号安装
+        $this-&gt;installSignal();
+        $this-&gt;redis = new \Redis();
+        $this-&gt;redis-&gt;connect(&#39;127.0.0.1&#39;, 6379);
+    }
+
+    //处理函数
+    public function handle()
+    {
+        $this-&gt;startTime = time();
+        while($this-&gt;loop) {
+            //检查运行时间
+            $this-&gt;checkRunTime();
+            //信号分发
+            pcntl_signal_dispatch();
+            $data = $this-&gt;redis-&gt;lPop(&#39;QUEUE:JOB&#39;);
+            if(!$data) {
+                sleep(5);       //spare sleep
+                continue;
+            }
+            //do data
+            //比如：将数据存储到文件中……
+            file_put_contents(&#39;/data/data.txt&#39;, $data, FILE_APPEND);
+        }
+    }
+
+    //检查运行时间
+    private function checkRunTime()
+    {
+        if (time() - $this-&gt;startTime &gt; self::MAX_RUN_TIME) {
+            $this-&gt;loop = false;
+        }
+    }
+
+    //信号安装
+    function installSignal()
+    {
+        //绑定QUIT信号
+        pcntl_signal(SIGQUIT, array($this, &#39;sigalHndler&#39;));
+        pcntl_signal(SIGTERM, array($this, &#39;sigalHndler&#39;));
+        pcntl_signal(SIGHUP, array($this, &#39;sigalHndler&#39;));
+        pcntl_signal(SIGINT, array($this, &#39;sigalHndler&#39;));
+
+    }
+
+    //信号处理函数
+    private function sigalHndler($signo)
+    {
+        switch ($signo) {
+            case SIGTERM:
+            case SIGHUP:
+            case SIGINT:
+            case SIGQUIT:
+                $this-&gt;loop = false;
+                break;
+            default:
+                // 处理所有其他信号
+        }
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=总结>总结</h2>
+<p>使用supervisor管理php脚本,要做好以下几点：</p>
+<ul>
+<li>信号处理：是程序优雅的退出</li>
+<li>主动重启：php的运行进程工作一段时间后重新退出，supervisor启动新的进程继续工作</li>
+</ul>
+<h2 id=参考列表>参考列表</h2>
+<ul>
+<li><a href=http://liyangliang.me/posts/2015/06/using-supervisor/>使用 supervisor 管理进程</a></li>
+<li><a href=http://supervisord.org/>supervisor官方文档</a></li>
+</ul>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>文章作者</span>
+<span class=item-content>xyChen</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>上次更新</span>
+<span class=item-content>
+2017-12-16
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<div class=post-tags>
+<a href=/tags/php/>php</a>
+<a href=/tags/supervisor/>supervisor</a>
+</div>
+<nav class=post-nav>
+<a class=prev href=/post/2019-08-06-decorator/>
+<i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">装饰者模式（PHP实现）</span>
+<span class="prev-text nav-mobile">上一篇</span>
+</a>
+<a class=next href=/post/2017-12-16-conf-fine/>
+<span class="next-text nav-default">常用配置文件的查找</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=gitalk-container></div>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css crossorigin=anonymous>
+<script src=https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js crossorigin=anonymous></script>
+<script type=text/javascript>var gitalk=new Gitalk({id:'2017-12-16 20:00:00 \u002b0000 UTC',title:'supervisor在PHP项目中的使用',clientID:'81e29cbac29084aad10d',clientSecret:'338cdd3a822b28c81521b9ea40010114d191ad2b',repo:'blog',owner:'xychen',admin:['xychen'],body:decodeURI(location.href)});gitalk.render('gitalk-container')</script>
+<noscript>Please enable JavaScript to view the <a href=https://github.com/gitalk/gitalk>comments powered by gitalk.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/xychen class="iconfont icon-github" title=github></a>
+<a href=https://weibo.com/u/1784822961 class="iconfont icon-weibo" title=weibo></a>
+<a href=https://xychen.github.io/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<div class=busuanzi-footer>
+<span id=busuanzi_container_site_pv> 本站总访问量 <span id=busuanzi_value_site_pv><img src=/img/spinner.svg alt=spinner.svg></span> 次 </span>
+<span class=division>|</span>
+<span id=busuanzi_container_site_uv> 本站总访客数 <span id=busuanzi_value_site_uv><img src=/img/spinner.svg alt=spinner.svg></span> 人 </span>
+</div>
+<span class=copyright-year>
+&copy;
+2017 -
+2021<span class=heart><i class="iconfont icon-heart"></i></span><span>xyChen</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+</body>
+</html>
