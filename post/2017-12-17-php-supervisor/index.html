@@ -209,32 +209,32 @@ environment = USER=&#34;test&#34;,APP_ENV=&#34;test&#34;
 </span><span class=lnt>26
 </span></code></pre></td>
 <td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>$job = new Job();
-$job-&gt;handle();
+<pre tabindex=0 class=chroma><code class=language-php data-lang=php><span class=nv>$job</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Job</span><span class=p>();</span>
+<span class=nv>$job</span><span class=o>-&gt;</span><span class=na>handle</span><span class=p>();</span>
 
-class Job
-{
-    private $redis;
-    public function __(){
-        $this-&gt;redis = new \Redis();
-        $this-&gt;redis-&gt;connect(&#39;127.0.0.1&#39;, 6379);
-    }
+<span class=k>class</span> <span class=nc>Job</span>
+<span class=p>{</span>
+    <span class=k>private</span> <span class=nv>$redis</span><span class=p>;</span>
+    <span class=k>public</span> <span class=k>function</span> <span class=nf>__</span><span class=p>(){</span>
+        <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>redis</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>\Redis</span><span class=p>();</span>
+        <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>redis</span><span class=o>-&gt;</span><span class=na>connect</span><span class=p>(</span><span class=s1>&#39;127.0.0.1&#39;</span><span class=p>,</span> <span class=mi>6379</span><span class=p>);</span>
+    <span class=p>}</span>
 
-    //处理函数
-    public function handle()
-    {
-        while(true) {
-            $data = $this-&gt;redis-&gt;lPop(&#39;QUEUE:JOB&#39;);
-            if(!$data) {
-                sleep(5);
-                continue;
-            }
-            //do data
-            //比如：将数据存储到文件中……
-            file_put_contents(&#39;/data/data.txt&#39;, $data, FILE_APPEND);
-        }
-    }
-}
+    <span class=c1>//处理函数
+</span><span class=c1></span>    <span class=k>public</span> <span class=k>function</span> <span class=nf>handle</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=k>while</span><span class=p>(</span><span class=k>true</span><span class=p>)</span> <span class=p>{</span>
+            <span class=nv>$data</span> <span class=o>=</span> <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>redis</span><span class=o>-&gt;</span><span class=na>lPop</span><span class=p>(</span><span class=s1>&#39;QUEUE:JOB&#39;</span><span class=p>);</span>
+            <span class=k>if</span><span class=p>(</span><span class=o>!</span><span class=nv>$data</span><span class=p>)</span> <span class=p>{</span>
+                <span class=nx>sleep</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+                <span class=k>continue</span><span class=p>;</span>
+            <span class=p>}</span>
+            <span class=c1>//do data
+</span><span class=c1></span>            <span class=c1>//比如：将数据存储到文件中……
+</span><span class=c1></span>            <span class=nx>file_put_contents</span><span class=p>(</span><span class=s1>&#39;/data/data.txt&#39;</span><span class=p>,</span> <span class=nv>$data</span><span class=p>,</span> <span class=nx>FILE_APPEND</span><span class=p>);</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
+<span class=p>}</span>
 </code></pre></td></tr></table>
 </div>
 </div><h2 id=信号处理>信号处理</h2>
@@ -462,78 +462,78 @@ class Job
 </span><span class=lnt>72
 </span></code></pre></td>
 <td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>$job = new Job();
-$job-&gt;handle();
+<pre tabindex=0 class=chroma><code class=language-php data-lang=php><span class=nv>$job</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Job</span><span class=p>();</span>
+<span class=nv>$job</span><span class=o>-&gt;</span><span class=na>handle</span><span class=p>();</span>
 
-class Job
-{
-    const MAX_RUN_TIME = 3600;  //最长运行1小时
-    private $redis;
-    private $loop = true;
-    private $startTime;
+<span class=k>class</span> <span class=nc>Job</span>
+<span class=p>{</span>
+    <span class=k>const</span> <span class=no>MAX_RUN_TIME</span> <span class=o>=</span> <span class=mi>3600</span><span class=p>;</span>  <span class=c1>//最长运行1小时
+</span><span class=c1></span>    <span class=k>private</span> <span class=nv>$redis</span><span class=p>;</span>
+    <span class=k>private</span> <span class=nv>$loop</span> <span class=o>=</span> <span class=k>true</span><span class=p>;</span>
+    <span class=k>private</span> <span class=nv>$startTime</span><span class=p>;</span>
 
-    public function __()
-    {
-        //信号安装
-        $this-&gt;installSignal();
-        $this-&gt;redis = new \Redis();
-        $this-&gt;redis-&gt;connect(&#39;127.0.0.1&#39;, 6379);
-    }
+    <span class=k>public</span> <span class=k>function</span> <span class=nf>__</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=c1>//信号安装
+</span><span class=c1></span>        <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>installSignal</span><span class=p>();</span>
+        <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>redis</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>\Redis</span><span class=p>();</span>
+        <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>redis</span><span class=o>-&gt;</span><span class=na>connect</span><span class=p>(</span><span class=s1>&#39;127.0.0.1&#39;</span><span class=p>,</span> <span class=mi>6379</span><span class=p>);</span>
+    <span class=p>}</span>
 
-    //处理函数
-    public function handle()
-    {
-        $this-&gt;startTime = time();
-        while($this-&gt;loop) {
-            //检查运行时间
-            $this-&gt;checkRunTime();
-            //信号分发
-            pcntl_signal_dispatch();
-            $data = $this-&gt;redis-&gt;lPop(&#39;QUEUE:JOB&#39;);
-            if(!$data) {
-                sleep(5);       //spare sleep
-                continue;
-            }
-            //do data
-            //比如：将数据存储到文件中……
-            file_put_contents(&#39;/data/data.txt&#39;, $data, FILE_APPEND);
-        }
-    }
+    <span class=c1>//处理函数
+</span><span class=c1></span>    <span class=k>public</span> <span class=k>function</span> <span class=nf>handle</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>startTime</span> <span class=o>=</span> <span class=nx>time</span><span class=p>();</span>
+        <span class=k>while</span><span class=p>(</span><span class=nv>$this</span><span class=o>-&gt;</span><span class=na>loop</span><span class=p>)</span> <span class=p>{</span>
+            <span class=c1>//检查运行时间
+</span><span class=c1></span>            <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>checkRunTime</span><span class=p>();</span>
+            <span class=c1>//信号分发
+</span><span class=c1></span>            <span class=nx>pcntl_signal_dispatch</span><span class=p>();</span>
+            <span class=nv>$data</span> <span class=o>=</span> <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>redis</span><span class=o>-&gt;</span><span class=na>lPop</span><span class=p>(</span><span class=s1>&#39;QUEUE:JOB&#39;</span><span class=p>);</span>
+            <span class=k>if</span><span class=p>(</span><span class=o>!</span><span class=nv>$data</span><span class=p>)</span> <span class=p>{</span>
+                <span class=nx>sleep</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>       <span class=c1>//spare sleep
+</span><span class=c1></span>                <span class=k>continue</span><span class=p>;</span>
+            <span class=p>}</span>
+            <span class=c1>//do data
+</span><span class=c1></span>            <span class=c1>//比如：将数据存储到文件中……
+</span><span class=c1></span>            <span class=nx>file_put_contents</span><span class=p>(</span><span class=s1>&#39;/data/data.txt&#39;</span><span class=p>,</span> <span class=nv>$data</span><span class=p>,</span> <span class=nx>FILE_APPEND</span><span class=p>);</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
 
-    //检查运行时间
-    private function checkRunTime()
-    {
-        if (time() - $this-&gt;startTime &gt; self::MAX_RUN_TIME) {
-            $this-&gt;loop = false;
-        }
-    }
+    <span class=c1>//检查运行时间
+</span><span class=c1></span>    <span class=k>private</span> <span class=k>function</span> <span class=nf>checkRunTime</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=k>if</span> <span class=p>(</span><span class=nx>time</span><span class=p>()</span> <span class=o>-</span> <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>startTime</span> <span class=o>&gt;</span> <span class=nx>self</span><span class=o>::</span><span class=na>MAX_RUN_TIME</span><span class=p>)</span> <span class=p>{</span>
+            <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>loop</span> <span class=o>=</span> <span class=k>false</span><span class=p>;</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
 
-    //信号安装
-    function installSignal()
-    {
-        //绑定QUIT信号
-        pcntl_signal(SIGQUIT, array($this, &#39;sigalHndler&#39;));
-        pcntl_signal(SIGTERM, array($this, &#39;sigalHndler&#39;));
-        pcntl_signal(SIGHUP, array($this, &#39;sigalHndler&#39;));
-        pcntl_signal(SIGINT, array($this, &#39;sigalHndler&#39;));
+    <span class=c1>//信号安装
+</span><span class=c1></span>    <span class=k>function</span> <span class=nf>installSignal</span><span class=p>()</span>
+    <span class=p>{</span>
+        <span class=c1>//绑定QUIT信号
+</span><span class=c1></span>        <span class=nx>pcntl_signal</span><span class=p>(</span><span class=nx>SIGQUIT</span><span class=p>,</span> <span class=k>array</span><span class=p>(</span><span class=nv>$this</span><span class=p>,</span> <span class=s1>&#39;sigalHndler&#39;</span><span class=p>));</span>
+        <span class=nx>pcntl_signal</span><span class=p>(</span><span class=nx>SIGTERM</span><span class=p>,</span> <span class=k>array</span><span class=p>(</span><span class=nv>$this</span><span class=p>,</span> <span class=s1>&#39;sigalHndler&#39;</span><span class=p>));</span>
+        <span class=nx>pcntl_signal</span><span class=p>(</span><span class=nx>SIGHUP</span><span class=p>,</span> <span class=k>array</span><span class=p>(</span><span class=nv>$this</span><span class=p>,</span> <span class=s1>&#39;sigalHndler&#39;</span><span class=p>));</span>
+        <span class=nx>pcntl_signal</span><span class=p>(</span><span class=nx>SIGINT</span><span class=p>,</span> <span class=k>array</span><span class=p>(</span><span class=nv>$this</span><span class=p>,</span> <span class=s1>&#39;sigalHndler&#39;</span><span class=p>));</span>
 
-    }
+    <span class=p>}</span>
 
-    //信号处理函数
-    private function sigalHndler($signo)
-    {
-        switch ($signo) {
-            case SIGTERM:
-            case SIGHUP:
-            case SIGINT:
-            case SIGQUIT:
-                $this-&gt;loop = false;
-                break;
-            default:
-                // 处理所有其他信号
-        }
-    }
-}
+    <span class=c1>//信号处理函数
+</span><span class=c1></span>    <span class=k>private</span> <span class=k>function</span> <span class=nf>sigalHndler</span><span class=p>(</span><span class=nv>$signo</span><span class=p>)</span>
+    <span class=p>{</span>
+        <span class=k>switch</span> <span class=p>(</span><span class=nv>$signo</span><span class=p>)</span> <span class=p>{</span>
+            <span class=k>case</span> <span class=nx>SIGTERM</span><span class=o>:</span>
+            <span class=k>case</span> <span class=nx>SIGHUP</span><span class=o>:</span>
+            <span class=k>case</span> <span class=nx>SIGINT</span><span class=o>:</span>
+            <span class=k>case</span> <span class=nx>SIGQUIT</span><span class=o>:</span>
+                <span class=nv>$this</span><span class=o>-&gt;</span><span class=na>loop</span> <span class=o>=</span> <span class=k>false</span><span class=p>;</span>
+                <span class=k>break</span><span class=p>;</span>
+            <span class=k>default</span><span class=o>:</span>
+                <span class=c1>// 处理所有其他信号
+</span><span class=c1></span>        <span class=p>}</span>
+    <span class=p>}</span>
+<span class=p>}</span>
 </code></pre></td></tr></table>
 </div>
 </div><h2 id=总结>总结</h2>
@@ -610,7 +610,7 @@ class Job
 <span class=copyright-year>
 &copy;
 2017 -
-2021<span class=heart><i class="iconfont icon-heart"></i></span><span>xyChen</span>
+2022<span class=heart><i class="iconfont icon-heart"></i></span><span>xyChen</span>
 </span>
 </div>
 </footer>
